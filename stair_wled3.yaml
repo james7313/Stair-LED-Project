@@ -1,0 +1,287 @@
+blueprint:
+  name: Sensor Light
+  description: >
+    # Sensor Light
+    
+    **The Automation Process:**
+     - In this example we will use a Motion sensor as the trigger but you can use one or multiple [Binary Sensors](https://www.home-assistant.io/integrations/binary_sensor/) as the trigger/s.
+     - Triggers on a motion sensor and turns the lights ON. 
+     - When no motion is detected, a time delay is activated and turns the lights OFF Automatically.
+     - The lights will stay ON if the motion sensor detects motion before the time delay turns the lights OFF. It will then reset the time delay after last motion is detected.
+     - You have the option to select scenes. This allows you to turn ON a scene when motion is detected and turn OFF a scene when the time delay has ended.
+     - You have the option to use the "Light Control". This allows you to set a brightness level for your lights.
+     - You have the option to use the "Trigger Sensor By-pass". This allows you to add a switch to manually By-pass the trigger sensor so you can use the lights as normal by turning them ON and OFF manually.
+     - You have the option to use the "Sun Elevation". This is used for adding a condition to only work when it is dark by setting the suns position to the horizon.
+     - You have the option to use the "Zone - Device Tracker". This can be useful if you have pets triggering the trigger sensor turning your lights ON and OFF when no one is home.
+     
+     Note: If you turn the light on manually and the motion sensor detects motion the light will turn off automatically. It is recommended to use the "Trigger Sensor By-pass" option if you would like to keep the lights ON or OFF for extended time periods.
+     
+     Required = *
+     
+     Based on: https://gist.github.com/Blackshome/6edfec0ff6a25c5da0d07b88dc908238
+  input:
+    motion_trigger:
+      name: Trigger Sensor - Binary Sensors *
+      description: The Sensor/s that turns the lights ON and OFF. 
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: true
+    light_switch:
+      name: Lights - Switches - Scenes *
+      description: The lights that get turned on by the trigger sensor/s. You can also add switches and scenes.
+        If adding a scene please read "Scenes To Turn OFF" below.
+      selector:
+        target:
+          entity:
+            domain: 
+              - light
+              - switch
+              - scene
+    time_delay:
+      name: Time Delay
+      description: The delay time to leave the lights on after the last trigger from ON to OFF state is detected.
+      default: 15
+      selector:
+        number:
+          min: 0
+          max: 360
+          step: 1
+          unit_of_measurement: seconds
+    light_brightness:
+      name: Brightness
+      description: Brightness of the lights when they are turned ON.
+      default: 100
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: slider
+          step: 1
+          unit_of_measurement: '%'
+    led_color_palette:
+      name: Color
+      description: Select the color of the Wipe
+      default: 
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: slider
+          step: 1
+          unit_of_measurement: 'color'
+    led_speed:
+      name: Speed
+      description: Select LED Wipe Speed
+      default: 120
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: slider
+          step: 1
+          unit_of_measurement: 'Speed'
+    led_reverse:    
+      name: Direction
+      description: Select the direction of the Wipe
+      default: false
+      selector:
+        select:
+          options:
+            - label: Forward
+              value: "false"
+            - label: Reverse
+              value: "true"
+    include_bypass:
+      name: Use The Trigger Sensor By-pass Option (Optional)
+      description: Select enable or disable. Both of the enable options will allow manual control of your lights.
+        The enable options are only for selecting what should happen when you turn the by-pass ON and the lights are already ON. 
+      default: bypass_disabled
+      selector:
+        select:
+          options:
+            - label: Enable the By-pass - If lights are ON, turn lights OFF
+              value: "bypass_enabled"
+            - label: Enable the By-pass - If lights are ON, leave lights ON
+              value: "bypass_enabled_stop"
+            - label: Disable the By-pass option
+              value: "bypass_disabled"
+    motion_bypass:
+      name: Trigger Sensor By-pass
+      description: Select a switch that will By-pass the trigger sensor and make your lights function as normal. 
+        The entity cannot be included in, "Lights - Switches - Scenes" and or "Night Lights" selections.
+      default: []
+      selector:
+        entity:
+    include_sun:
+      name: Use The Sun Option (Optional)
+      description: Select enable or disable. 
+      default: sun_disabled
+      selector:
+        select:
+          options:
+            - label: Enable the sun option
+              value: "sun_enabled"
+            - label: Disable the sun option
+              value: "sun_disabled"
+    sun_elevation:
+      name: Sun Elevation
+      description: This is the angle between the sun and the horizon. Negative values mean the sun is BELOW the horizon. Guide is -1.5 (dusk) and -4.0 (dawn).
+      default: -1.5
+      selector:
+        number:
+          min: -10
+          max: 5
+          step: 0.5
+          unit_of_measurement: degrees
+    after_time:
+      name: Start Time
+      description: Set the start time.
+      default: 00:00:00
+      selector:
+        time:
+    before_time:
+      name: End Time
+      description: Set the end time.
+      default: 00:00:00
+      selector:
+        time:
+    include_zone:
+      name: Use The Zone Option (Optional)
+      description: Home Assistant can track your devices (mobile phones) location to a set zone via the mobile app device tracker.
+        Enabling this option will only allow the automation to run if a device is in the zone.
+        This can be useful if you have pets triggering the trigger sensor turning your lights ON and OFF when no one is home.
+      default: zone_disabled
+      selector:
+        select:
+          options:
+            - label: Enable the zone option
+              value: "zone_enabled"
+            - label: Disable the zone option
+              value: "zone_disabled"
+    zone:
+      name: Zone - Device Tracker
+      description: Select the zone to track devices in. You must set up a zone and your devices (mobile phones, etc)
+        to be tracked in Home Assistant for this option to work.
+      default: []
+      selector:
+        entity:
+          domain: zone
+
+
+# If motion sensor turns ON again within the time delay, it will restart the script.
+mode: restart
+max_exceeded: silent
+
+variables:
+  motion_trigger: !input motion_trigger
+  light_switch: !input light_switch
+  time_delay: !input time_delay
+  include_light_control: !input include_light_control
+  light_brightness: !input light_brightness
+  led_color_palette: !input led_color_palette
+  led_speed: input !input led_speed
+  led_reverse: !input led_reverse
+  include_bypass: !input include_bypass
+  motion_bypass: !input motion_bypass
+  include_sun: !input include_sun
+  sun_elevation: !input sun_elevation
+  after_time: !input after_time
+  before_time: !input before_time
+  include_zone: !input include_zone
+  zone: !input zone
+
+
+trigger:
+  - platform: state
+    id: "t1"
+    entity_id: !input motion_trigger
+    from: "Clear"
+    to: "Detected"
+  - platform: numeric_state
+    id: "t2"
+    entity_id: sun.sun
+    attribute: elevation
+    below: !input sun_elevation
+  - platform: time
+    id: "t4"
+    at: !input after_time
+
+
+# All Conditions
+condition:
+#Trigger conditions
+  - condition: or
+    conditions:
+      - condition: and # trigger from clear to detected
+        conditions:
+          - condition: state
+            entity_id: !input motion_trigger
+            match: any
+            state: 'Detected'
+      - condition: and # trigger by sun & check motion trigger is on
+        conditions:
+          - condition: state
+            entity_id: !input motion_trigger
+            state: 'Detected'
+          - condition: trigger
+            id: 't2'
+      - condition: and # trigger by ambient & check motion trigger is on
+        conditions:
+          - condition: state
+            entity_id: !input motion_trigger
+            state: 'Detected'
+          - condition: trigger
+            id: 't3'    
+      - condition: and # trigger by time & check motion trigger is on
+        conditions:
+          - condition: state
+            entity_id: !input motion_trigger
+            state: 'Detected'
+          - condition: trigger
+            id: 't4'
+      - condition: and # trigger by night time & check motion trigger is on
+        conditions:
+          - condition: state
+            entity_id: !input motion_trigger
+            state: 'Detected'
+          - condition: trigger
+            id: 't5'
+
+# Check Motion Sensor Manual By-pass
+  - condition: or
+    conditions:
+      - "{{ include_bypass == 'bypass_disabled' }}"
+      - "{{ motion_bypass == [] }}"
+      - "{{ (include_bypass == 'bypass_enabled') and (states[motion_bypass].state == 'off') }}"
+      - "{{ (include_bypass == 'bypass_enabled_stop') and (states[motion_bypass].state == 'off') }}"
+
+# Check Sun Elevation
+  - condition: or
+    conditions:
+      - "{{ include_sun == 'sun_disabled' }}"
+      - "{{ (include_sun == 'sun_enabled') and (state_attr('sun.sun','elevation') <= sun_elevation | float(90)) }}"
+
+# Check The Time Options
+  - condition: or
+    conditions:
+      - "{{ include_time == 'time_disabled' }}"
+      - condition: and
+        conditions:      
+        - condition: time
+          after: !input after_time
+          before: !input before_time
+          weekday: !input weekday_options
+        -  "{{ include_time == 'time_enabled' }}"
+
+# Check if people are in the zone
+  - condition: or
+    conditions:
+      - "{{ include_zone == 'zone_disabled' }}"
+      - condition: and
+        conditions:
+        - condition: numeric_state
+          entity_id: !input zone
+          above: 0
+        -  "{{ include_zone == 'zone_enabled' }}"
+
