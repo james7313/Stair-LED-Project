@@ -45,9 +45,9 @@ action:
     service: light.turn_on
     data:
     entity_id: !input light_target
-    rgb_color: !input select.wled.color_palette
-    speed: !input number.wled_speed
-    direction: !input switch.wled_reverse
+    rgb_color: !input wled_color_palette
+    speed: !input wled_speed
+    direction: !input wled_reverse
     effect: "Wipe"
   - alias: "Wait until there is no motion from device"
     wait_for_trigger:
