@@ -2,7 +2,7 @@ blueprint:
   name: Stair Lights
   description: Turn On Stair LED Light 
   domain: automation
-  source_url: https://github.com/james7313/Stair-LED-Project/blob/2f687f76d7ffb4579a008f09297aa66777741b49/stair_wled.yaml
+  source_url: https://github.com/james7313/Stair-LED-Project/
   input:
     motion_entity:
       name: Motion Sensor
