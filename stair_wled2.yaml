@@ -1,0 +1,62 @@
+blueprint:
+  name: Stair Lights
+  description: Turn On Stair LED Light 
+  domain: automation
+  source_url: https://github.com/james7313/Stair-LED-Project/
+  input:
+    motion_entity:
+      name: Motion Sensor
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: motion
+    light_target:
+      name: Light
+      selector:
+        target:
+          entity:
+            domain: light
+    no_motion_wait:
+      name: Wait time
+      description: Time to leave the light on after last motion is detected.
+      default: 15
+      selector:
+        number:
+          min: 0
+          max: 3600
+          unit_of_measurement: seconds
+
+# If motion is detected within the delay,
+# we restart the script.
+mode: restart
+max_exceeded: silent
+
+trigger:
+  platform: state
+  entity_id: !input motion_entity
+  from: "Clear"
+  to: "Detected"
+
+action:
+  - alias: "Turn on the light"
+    service: light.turn_on
+    target: !input light_target
+  - alias: "Color and Effects"
+    service: light.turn_on
+    data:
+    entity_id: !input light_target
+    rgb_color: !input select.wled.color_palette
+    speed: !input number.wled_speed
+    direction: !input switch.wled_reverse
+    effect: "Wipe"
+  - alias: "Wait until there is no motion from device"
+    wait_for_trigger:
+      platform: state
+      entity_id: !input motion_entity
+      from: "Clear"
+      to: "Detected"
+  - alias: "Wait the number of seconds that has been set"
+    delay: !input no_motion_wait
+  - alias: "Turn off the light"
+    service: light.turn_off
+    target: !input light_target
