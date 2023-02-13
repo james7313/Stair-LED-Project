@@ -179,7 +179,6 @@ variables:
   motion_trigger: !input motion_trigger
   light_switch: !input light_switch
   time_delay: !input time_delay
-  include_light_control: !input include_light_control
   light_brightness: !input light_brightness
   led_color_palette: !input led_color_palette
   led_speed: input !input led_speed
@@ -273,7 +272,6 @@ condition:
         - condition: time
           after: !input after_time
           before: !input before_time
-          weekday: !input weekday_options
         -  "{{ include_time == 'time_enabled' }}"
 
 # Check if people are in the zone
