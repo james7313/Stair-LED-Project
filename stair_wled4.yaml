@@ -275,4 +275,4 @@ condition:
 action:
   - alias: "Turn on the light"
     service: light.turn_on
-    target: !input light_target
+    target: !input light_switch
