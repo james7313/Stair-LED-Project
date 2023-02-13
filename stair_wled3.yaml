@@ -9,7 +9,6 @@ blueprint:
      - When no motion is detected, a time delay is activated and turns the lights OFF Automatically.
      - The lights will stay ON if the motion sensor detects motion before the time delay turns the lights OFF. It will then reset the time delay after last motion is detected.
      - You have the option to select scenes. This allows you to turn ON a scene when motion is detected and turn OFF a scene when the time delay has ended.
-     - You have the option to use the "Light Control". This allows you to set a brightness level for your lights.
      - You have the option to use the "Trigger Sensor By-pass". This allows you to add a switch to manually By-pass the trigger sensor so you can use the lights as normal by turning them ON and OFF manually.
      - You have the option to use the "Sun Elevation". This is used for adding a condition to only work when it is dark by setting the suns position to the horizon.
      - You have the option to use the "Zone - Device Tracker". This can be useful if you have pets triggering the trigger sensor turning your lights ON and OFF when no one is home.
@@ -61,17 +60,6 @@ blueprint:
           mode: slider
           step: 1
           unit_of_measurement: '%'
-    led_color_palette:
-      name: Color
-      description: Select the color of the Wipe
-      default: 
-      selector:
-        number:
-          min: 1
-          max: 100
-          mode: slider
-          step: 1
-          unit_of_measurement: 'color'
     led_speed:
       name: Speed
       description: Select LED Wipe Speed
@@ -180,7 +168,6 @@ variables:
   light_switch: !input light_switch
   time_delay: !input time_delay
   light_brightness: !input light_brightness
-  led_color_palette: !input led_color_palette
   led_speed: input !input led_speed
   led_reverse: !input led_reverse
   include_bypass: !input include_bypass
