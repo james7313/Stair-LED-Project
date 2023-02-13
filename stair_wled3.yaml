@@ -18,7 +18,8 @@ blueprint:
      
      Required = *
      
-     Based on: https://gist.github.com/Blackshome/6edfec0ff6a25c5da0d07b88dc908238
+     Based on: (https://gist.github.com/Blackshome/6edfec0ff6a25c5da0d07b88dc908238)
+
   domain: automation
   input:
     motion_trigger:
